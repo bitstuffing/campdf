@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">CamPDF</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="hello_fragment_label">CamPDF</string>
+
+</resources>

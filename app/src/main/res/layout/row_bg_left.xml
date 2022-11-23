@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/yellow"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center_vertical|center"
+    android:gravity="center|clip_horizontal"
+    android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/deleteTextView"
+            android:layout_marginLeft="20dp"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Rename"
+            android:layout_gravity="center"
+            />
+    </LinearLayout>
