@@ -16,6 +16,8 @@ jobs:
         java-version: 11
     - name: Make gradle binary executable
       run: chmod +x ./gradlew
+    - name: Clean
+      run: ./gradlew clean
     - name: Build
       run: ./gradlew build
     - name: Build APK (dev)
