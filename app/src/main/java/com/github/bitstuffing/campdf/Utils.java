@@ -1,13 +1,18 @@
 package com.github.bitstuffing.campdf;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import org.apache.commons.io.FileUtils;
@@ -20,6 +25,22 @@ import java.security.Security;
 import java.util.ArrayList;
 
 public class Utils {
+
+    public static boolean checkPermissions(Context context){
+        return ContextCompat.checkSelfPermission(context,android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(context,android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    public static boolean requestPermissions(Activity activity){
+        if (!checkPermissions(activity)) {
+            ActivityCompat.requestPermissions(activity,
+                    new String[] {
+                            Manifest.permission.CAMERA,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    },100);
+        }
+        return true;
+    }
 
     public static File copyToTempFile(Uri uri, File tempFile, Activity activity) throws IOException {
         // Obtain an input stream from the uri

@@ -1,28 +1,25 @@
 package com.github.bitstuffing.campdf;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -43,7 +40,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class MainActivity extends AppCompatActivity implements ISignals {
+public class MainActivity extends AppCompatActivity implements ISignals{
 
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
@@ -140,26 +137,16 @@ public class MainActivity extends AppCompatActivity implements ISignals {
         sendMessage(code,"");
     }
 
-    private void checkPermissions(){
-        int permissionCheck = ContextCompat.checkSelfPermission(
-                MainActivity.this,
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(MainActivity.this,
-                    new String[] {
-                            Manifest.permission.CAMERA,
-                            Manifest.permission.READ_EXTERNAL_STORAGE,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                            Manifest.permission.INTERNET
-                    },100);
-        }
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        checkPermissions();
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        if (!sharedPreferences.getBoolean(OnBoardingFragment.COMPLETED_ONBOARDING_PREF_NAME, false)) {
+            startActivity(new Intent(this, WelcomeActivity.class));
+        }
+
+        //Utils.checkPermissions(this);
         init();
 
         //set button event
@@ -340,4 +327,5 @@ public class MainActivity extends AppCompatActivity implements ISignals {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         return NavigationUI.navigateUp(navController, appBarConfiguration) || super.onSupportNavigateUp();
     }
+
 }
