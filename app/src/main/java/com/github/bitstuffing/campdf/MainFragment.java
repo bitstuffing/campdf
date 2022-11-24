@@ -15,7 +15,6 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -29,8 +28,8 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainFragment extends Fragment {
 
@@ -41,6 +40,7 @@ public class MainFragment extends Fragment {
 
     private CustomSwipeRefreshLayout swipeRefreshLayout;
     private LinearLayout emptyLayout;
+    protected List<String> list;
 
     public static MainFragment newInstance() {
         fragment = new MainFragment();
@@ -90,13 +90,13 @@ public class MainFragment extends Fragment {
 
     }
 
-    private void fillListView() {
-        Set<String> list = new HashSet<String>();
+    public void fillListView() {
+        list = new ArrayList<String>();
         File filePath = getActivity().getFilesDir();
         for(int i=0;i<filePath.listFiles().length;i++){
             list.add(filePath.listFiles()[i].getName());
         }
-        BaseAdapter tempAdapter = new PDFElementAdapter(list.toArray(new String[0]), getActivity());
+        BaseAdapter tempAdapter = new PDFElementAdapter(list, getActivity());
         adapter = new SwipeActionAdapter(tempAdapter);
         adapter.addBackground(SwipeDirection.DIRECTION_FAR_LEFT,R.layout.row_bg_left_far)
                 .addBackground(SwipeDirection.DIRECTION_NORMAL_LEFT,R.layout.row_bg_left)
@@ -126,27 +126,27 @@ public class MainFragment extends Fragment {
                         switch (direction) {
                             case DIRECTION_FAR_LEFT:
                                 dir = "Far left";
-                                removeElement(i);
+                                removeElement(position);
                                 break;
                             case DIRECTION_NORMAL_LEFT:
                                 dir = "Left";
-                                renameElement(i);
+                                renameElement(position);
                                 break;
                             case DIRECTION_FAR_RIGHT:
                                 dir = "Far right";
-                                shareElementWith(i);
+                                shareElementWith(position);
                                 break;
                             case DIRECTION_NORMAL_RIGHT:
                                 dir = "Right";
-                                copyFileToDownloads(i);
+                                copyFileToDownloads(position);
                                 break;
                         }
                         adapter.notifyDataSetChanged();
                     }
                 }
             })
-        .setDimBackgrounds(true)
-        .setListView(pdfListView);
+            .setDimBackgrounds(true)
+            .setListView(pdfListView);
 
         pdfListView.setAdapter(adapter);
 
@@ -174,8 +174,9 @@ public class MainFragment extends Fragment {
     }
 
     private void renameElement(int i) {
-        final File directory = getActivity().getFilesDir();
-        final File target = directory.listFiles()[i];
+        final File dir = getActivity().getFilesDir();
+        final File target = dir.listFiles()[i];
+        //final File target = new File(dir,list.get(i));
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Rename");
         final EditText inputText = new EditText(getActivity());
@@ -186,7 +187,7 @@ public class MainFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String box = inputText.getText().toString();
-                target.renameTo(new File(directory,box));
+                target.renameTo(new File(dir,box));
                 fillListView();
             }
         });
@@ -201,13 +202,15 @@ public class MainFragment extends Fragment {
 
     private void shareElementWith(int i) {
         File dir = getActivity().getFilesDir();
-        String fileName = dir.listFiles()[i].getName();
+        final String fileName = dir.listFiles()[i].getName();
+        //final String fileName = list.get(i);
         Utils.shareUri(fileName,getActivity());
     }
 
     private void removeElement(int i) {
         final File dir = getActivity().getFilesDir();
         final File target = dir.listFiles()[i];
+        //final File target = new File(dir,list.get(i));
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Delete");
         builder.setMessage("Do you want to delete "+target.getName()+" file?");

@@ -15,16 +15,17 @@ import com.tom_roush.pdfbox.rendering.PDFRenderer;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 public class PDFElementAdapter extends BaseAdapter {
 
-    String[] list;
+    List<String> list;
     Activity activity;
 
     int WIDTH = 150;
     int HEIGHT = 150;
 
-    public PDFElementAdapter(String[] list, Activity activity){
+    public PDFElementAdapter(List<String> list, Activity activity){
         super();
         this.list = list;
         this.activity = activity;
@@ -32,12 +33,12 @@ public class PDFElementAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return list !=null ? list.length: 0;
+        return list !=null ? list.size(): 0;
     }
 
     @Override
     public Object getItem(int i) {
-        return list != null ? list[i] : null;
+        return list != null ? list.get(i) : null;
     }
 
     @Override
@@ -53,11 +54,11 @@ public class PDFElementAdapter extends BaseAdapter {
         ImageView i1;
         title = (TextView) row.findViewById(R.id.title);
         detail = (TextView) row.findViewById(R.id.detail);
-        title.setText(list[i]);
-        detail.setText(list[i]);
+        title.setText(list.get(i));
+        detail.setText(list.get(i));
         i1=(ImageView)row.findViewById(R.id.img);
         try{
-            i1.setImageBitmap(getThumbnailFromPDF(list[i])); //get thumbnail
+            i1.setImageBitmap(getThumbnailFromPDF(list.get(i))); //get thumbnail
         }catch(IOException e){
             e.printStackTrace(); //TODO log
         }

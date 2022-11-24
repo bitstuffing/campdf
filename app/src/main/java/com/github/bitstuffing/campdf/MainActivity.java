@@ -65,9 +65,6 @@ public class MainActivity extends AppCompatActivity implements ISignals {
     protected PDPage page = null;
     protected File file = null;
 
-    private PDFElementAdapter adapter;
-    private ListView pdfListView;
-
     private void init(){
         // handler
         messageHandler = new Handler(){
@@ -104,14 +101,7 @@ public class MainActivity extends AppCompatActivity implements ISignals {
                         Toast.makeText(getApplicationContext(), "ERROR: "+code+" | "+message, Toast.LENGTH_SHORT).show();
                         break;
                     case REFRESH_LISTVIEW:
-                        if(adapter!=null && pdfListView!=null){
-                            pdfListView.destroyDrawingCache();
-                            pdfListView.setVisibility(ListView.INVISIBLE);
-                            pdfListView.setVisibility(ListView.VISIBLE);
-                            pdfListView.setAdapter(adapter);
-                            adapter.notifyDataSetChanged();
-                            Toast.makeText(getApplicationContext(), "Content has changed", Toast.LENGTH_SHORT).show();
-                        }
+                        //TODO
                         break;
                     case INFO_MESSAGE:
                         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
@@ -176,12 +166,16 @@ public class MainActivity extends AppCompatActivity implements ISignals {
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, ScanActivity.class);
-                intent.putExtra(ScanConstants.OPEN_INTENT_PREFERENCE, ScanConstants.OPEN_CAMERA);
-                ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this);
-                startActivityForResult(intent, ScanConstants.START_CAMERA_REQUEST_CODE, options.toBundle());
+                callToIntent();
             }
         });
+    }
+
+    protected void callToIntent() {
+        Intent intent = new Intent(MainActivity.this, ScanActivity.class);
+        intent.putExtra(ScanConstants.OPEN_INTENT_PREFERENCE, ScanConstants.OPEN_CAMERA);
+        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this);
+        startActivityForResult(intent, ScanConstants.START_CAMERA_REQUEST_CODE, options.toBundle());
     }
 
     @Override
@@ -189,63 +183,121 @@ public class MainActivity extends AppCompatActivity implements ISignals {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE) {
             if(resultCode == Activity.RESULT_OK){
-                drawPdf(data,"scanned-"+System.currentTimeMillis()+".pdf");
-                sendMessage(REFRESH_LISTVIEW);
+                if(document == null){
+                    //define first and unique dialog workflow
+                    alertDialog = new AlertDialog.Builder(this);
+                    alertDialog.setTitle("Do you want to add more pages?");
+                    alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            document = new PDDocument();
+                            try {
+                                addPageToDocument(data);
+                                callToIntent();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                    alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            drawPdf(data,"scanned-"+System.currentTimeMillis()+".pdf");
+                            sendMessage(REFRESH_LISTVIEW); //TODO check
+                        }
+                    });
+                    sendMessage(SHOW_ALERT);
+                }else{
+                    //define recursive dialog workflow
+                    alertDialog = new AlertDialog.Builder(this);
+                    alertDialog.setTitle("Added, do you want to add more pages?");
+                    alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            try {
+                                addPageToDocument(data);
+                                callToIntent();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                    alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            try {
+                                addPageToDocument(data);
+                                askToSaveDocument("scanned-"+System.currentTimeMillis()+".pdf");
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            } finally{
+                                document = null;
+                                sendMessage(REFRESH_LISTVIEW);
+                            }
+                        }
+                    });
+                    sendMessage(SHOW_ALERT);
+                }
             }
         }
     }
 
-    private void drawPdf(Intent data,String fileName) {
-        //get bitmap url
-        Uri uri = data.getExtras().getParcelable(ScanConstants.SCANNED_RESULT);
-
+    private void drawPdf(Intent intent,String fileName) {
         try {
             //init
             sendMessage(LOADING,"creating document...");
             document = new PDDocument();
-            page = new PDPage();
-            document.addPage(page);
-
-            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-            contentStream = new PDPageContentStream(document, page);
-            bitmap = Bitmap.createScaledBitmap(bitmap, A4_WIDTH,A4_HEIGHT, true);
-            PDImageXObject alphaXimage = /*LosslessFactory*/JPEGFactory.createFromImage(document,bitmap);
-            contentStream.drawImage(alphaXimage, 0, 0 , page.getBBox().getWidth(), page.getBBox().getHeight());
-
-            contentStream.close();
-
+            addPageToDocument(intent);
             //storage part
+            askToSaveDocument(fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            document = null;
+        }
+    }
 
-            String path = getFilesDir().getAbsolutePath();
-            file = new File(path+File.separatorChar+fileName);
-            logger.log(Level.INFO,file.getAbsolutePath());
-            if (file.exists()){ //ask to replace
-                alertDialog = new AlertDialog.Builder(this);
-                alertDialog.setTitle("Do you want to replace old file?");
-                alertDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        try {
-                            file.delete();
-                            saveDocument();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            sendMessage(ERROR_MESSAGE,"Exception at: "+file.getAbsolutePath());
-                        }
+    private void addPageToDocument(Intent intent) throws IOException {
+        //get bitmap url
+        Uri uri = intent.getExtras().getParcelable(ScanConstants.SCANNED_RESULT);
+        page = new PDPage();
+        document.addPage(page);
+
+        bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+        contentStream = new PDPageContentStream(document, page);
+        bitmap = Bitmap.createScaledBitmap(bitmap, A4_WIDTH,A4_HEIGHT, true);
+        PDImageXObject alphaXimage = /*LosslessFactory*/JPEGFactory.createFromImage(document,bitmap);
+        contentStream.drawImage(alphaXimage, 0, 0 , page.getBBox().getWidth(), page.getBBox().getHeight());
+
+        contentStream.close();
+
+        page = null;
+    }
+
+    private void askToSaveDocument(String fileName) throws IOException {
+        String path = getFilesDir().getAbsolutePath();
+        file = new File(path+File.separatorChar+fileName);
+        logger.log(Level.INFO,file.getAbsolutePath());
+        if (file.exists()){ //ask to replace
+            alertDialog = new AlertDialog.Builder(this);
+            alertDialog.setTitle("Do you want to replace old file?");
+            alertDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    try {
+                        file.delete();
+                        saveDocument();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        sendMessage(ERROR_MESSAGE,"Exception at: "+file.getAbsolutePath());
                     }
-                });
-                alertDialog.setNegativeButton("Cancel",
+                }
+            });
+            alertDialog.setNegativeButton("Cancel",
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
                             //EMPTY
                         }
                     }
-                );
-                sendMessage(SHOW_ALERT);
-            }else{
-                saveDocument();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+            );
+            sendMessage(SHOW_ALERT);
+        }else{
+            saveDocument();
         }
     }
 
@@ -287,13 +339,5 @@ public class MainActivity extends AppCompatActivity implements ISignals {
     public boolean onSupportNavigateUp() {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         return NavigationUI.navigateUp(navController, appBarConfiguration) || super.onSupportNavigateUp();
-    }
-
-    public void setListAdapter(PDFElementAdapter adapter) {
-        this.adapter = adapter;
-    }
-
-    public void setPdfListView(ListView pdfListView) {
-        this.pdfListView = pdfListView;
     }
 }
