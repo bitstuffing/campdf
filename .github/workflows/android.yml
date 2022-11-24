@@ -23,7 +23,7 @@ jobs:
       env:
         APP_FOLDER: app
         RELEASE_TITLE: Dev. built
-      name: Rename APKs   
+    - name: Rename APKs   
       run: |
         mv app/build/outputs/apk/debug/app-debug.apk campdf-$GITHUB_RUN_NUMBER-debug.apk
     - name: Upload Debug APK
