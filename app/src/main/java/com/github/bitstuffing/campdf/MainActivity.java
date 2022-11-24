@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements ISignals {
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
 
-    protected Handler messageHandler;
+    protected static Handler messageHandler;
 
     private Logger logger = Logger.getLogger(this.getClass().getName());
 
@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements ISignals {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
     }
 
-    private void sendMessage(int code,String message) {
+    public static void sendMessage(int code,String message) {
         Message messageToBeSent = new Message();
         Bundle bundle = new Bundle();
         bundle.putInt("code",code);
@@ -146,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements ISignals {
         messageHandler.sendMessage(messageToBeSent);
     }
 
-    private void sendMessage(int code){
+    public static void sendMessage(int code){
         sendMessage(code,"");
     }
 
@@ -215,12 +215,7 @@ public class MainActivity extends AppCompatActivity implements ISignals {
             contentStream.close();
 
             //storage part
-            /*
-            String path = Environment.getExternalStorageDirectory().getAbsolutePath();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
-                logger.log(Level.INFO, "Selected Downloads folder");
-                path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
-            }*/
+
             String path = getFilesDir().getAbsolutePath();
             file = new File(path+File.separatorChar+fileName);
             logger.log(Level.INFO,file.getAbsolutePath());

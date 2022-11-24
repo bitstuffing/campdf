@@ -29,7 +29,7 @@
     </LinearLayout>
 
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    <com.github.bitstuffing.campdf.CustomSwipeRefreshLayout
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/swipeRefreshLayout"
             android:text = "Swipe to refresh "
@@ -43,6 +43,6 @@
 
         </ListView>
 
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </com.github.bitstuffing.campdf.CustomSwipeRefreshLayout>
 
 </FrameLayout>

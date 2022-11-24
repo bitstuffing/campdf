@@ -2,8 +2,11 @@ package com.github.bitstuffing.campdf;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.text.InputType;
+import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +15,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -21,7 +25,10 @@ import com.github.bitstuffing.campdf.databinding.FragmentMainBinding;
 import com.wdullaer.swipeactionadapter.SwipeActionAdapter;
 import com.wdullaer.swipeactionadapter.SwipeDirection;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,7 +39,7 @@ public class MainFragment extends Fragment {
     private ListView pdfListView;
     private static MainFragment fragment;
 
-    private SwipeRefreshLayout swipeRefreshLayout;
+    private CustomSwipeRefreshLayout swipeRefreshLayout;
     private LinearLayout emptyLayout;
 
     public static MainFragment newInstance() {
@@ -60,15 +67,24 @@ public class MainFragment extends Fragment {
         fillListView();
         //pdfListView.setStackFromBottom(false); //push list elements starting from bottom
 
-        swipeRefreshLayout = ( SwipeRefreshLayout ) view.findViewById( R.id.swipeRefreshLayout);
+        swipeRefreshLayout = ( CustomSwipeRefreshLayout ) view.findViewById( R.id.swipeRefreshLayout);
 
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {@Override
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+
+            @Override
             public void onRefresh() {
                 fillListView();
                 swipeRefreshLayout.setRefreshing(false); //dismiss spinner draw
             }
+
         });
 
+        swipeRefreshLayout.setOnDragListener(new View.OnDragListener() {
+            @Override
+            public boolean onDrag(View view, DragEvent dragEvent) {
+                return false;
+            }
+        });
 
         return view;
 
@@ -122,6 +138,7 @@ public class MainFragment extends Fragment {
                                 break;
                             case DIRECTION_NORMAL_RIGHT:
                                 dir = "Right";
+                                copyFileToDownloads(i);
                                 break;
                         }
                         adapter.notifyDataSetChanged();
@@ -138,6 +155,21 @@ public class MainFragment extends Fragment {
             emptyLayout.setVisibility(View.VISIBLE);
         }else{
             emptyLayout.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    private void copyFileToDownloads(int i){
+        String path = Environment.getExternalStorageDirectory().getAbsolutePath();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
+            path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
+        }
+        final File dir = getActivity().getFilesDir();
+        final File origin = dir.listFiles()[i];
+        try{
+            FileUtils.copyFile(origin,new File(path,origin.getName()));
+            MainActivity.sendMessage(ISignals.INFO_MESSAGE,"Copied to downloads with name: "+origin.getName());
+        }catch(IOException e){
+            e.printStackTrace();
         }
     }
 
