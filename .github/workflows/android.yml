@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      JVM_OPTS: -Xmx6G
     steps:
     - uses: actions/checkout@v3
     - name: set up JDK 11
@@ -23,3 +25,11 @@ jobs:
       env:
         APP_FOLDER: app
         RELEASE_TITLE: Dev. built
+      name: Rename APKs   
+      run: |
+        mv app/build/outputs/apk/debug/app-debug.apk campdf-$GITHUB_RUN_NUMBER-debug.apk
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: campdf-${{ github.run_number }}-debug.apk
+          path: campdf-${{ github.run_number }}-debug.apk
