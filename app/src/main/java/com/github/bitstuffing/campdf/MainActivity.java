@@ -49,8 +49,8 @@ public class MainActivity extends AppCompatActivity implements ISignals{
 
     private Logger logger = Logger.getLogger(this.getClass().getName());
 
-    ProgressDialog loadingDialog;
-    AlertDialog.Builder alertDialog;
+    private static ProgressDialog loadingDialog;
+    private static AlertDialog.Builder alertDialog;
 
     //pdf size (600 dpi - A4 sized), enough quality at this moment. TODO put in settings
     private static final int A4_WIDTH = 2480;
@@ -61,6 +61,10 @@ public class MainActivity extends AppCompatActivity implements ISignals{
     protected PDDocument document = null;
     protected PDPage page = null;
     protected File file = null;
+
+    public static void setAlertDialog(AlertDialog.Builder alert){
+        alertDialog = alert;
+    }
 
     private void init(){
         // handler
@@ -117,11 +121,9 @@ public class MainActivity extends AppCompatActivity implements ISignals{
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        setSupportActionBar(binding.toolbar);
-
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+
     }
 
     public static void sendMessage(int code,String message) {

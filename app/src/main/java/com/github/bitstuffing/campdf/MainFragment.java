@@ -40,7 +40,6 @@ public class MainFragment extends Fragment {
 
     private CustomSwipeRefreshLayout swipeRefreshLayout;
     private LinearLayout emptyLayout;
-    protected List<String> list;
 
     public static MainFragment newInstance() {
         fragment = new MainFragment();
@@ -91,10 +90,10 @@ public class MainFragment extends Fragment {
     }
 
     public void fillListView() {
-        list = new ArrayList<String>();
+        List<File> list = new ArrayList<File>();
         File filePath = getActivity().getFilesDir();
         for(int i=0;i<filePath.listFiles().length;i++){
-            list.add(filePath.listFiles()[i].getName());
+            list.add(filePath.listFiles()[i]);
         }
         BaseAdapter tempAdapter = new PDFElementAdapter(list, getActivity());
         adapter = new SwipeActionAdapter(tempAdapter);
@@ -227,7 +226,10 @@ public class MainFragment extends Fragment {
                 dialog.cancel();
             }
         });
-        builder.show();
+
+        ((MainActivity)getActivity()).setAlertDialog(builder);
+        ((MainActivity)getActivity()).sendMessage(ISignals.SHOW_ALERT);
+        //builder.show();
     }
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {

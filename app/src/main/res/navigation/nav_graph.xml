@@ -7,6 +7,7 @@
 
     <fragment
         android:id="@+id/FirstFragment"
+        android:background="#33000000"
         android:name="com.github.bitstuffing.campdf.MainFragment"
         android:label="@string/hello_fragment_label"
         tools:layout="@layout/fragment_main">
