@@ -24,12 +24,20 @@ jobs:
       run: ./gradlew assembleDebug 
       env:
         APP_FOLDER: app
-        RELEASE_TITLE: Dev. built
-    - name: Rename APKs   
+        RELEASE_TITLE: Dev. build
+    - name: Rename universal APK
       run: |
-        mv app/build/outputs/apk/debug/app-debug.apk campdf-$GITHUB_RUN_NUMBER-debug.apk
-    - name: Upload Debug APK
+        mv app/build/outputs/apk/debug/app-universal-debug.apk campdf-universal-$GITHUB_RUN_NUMBER-debug.apk
+    - name: Rename ARM64v8a APK
+      run: |
+        mv app/build/outputs/apk/debug/app-arm64-v8a-debug.apk campdf-arm64-v8a-$GITHUB_RUN_NUMBER-debug.apk
+    - name: Upload Universal Debug APK
       uses: actions/upload-artifact@v3
       with:
-        name: campdf-${{ github.run_number }}-debug.apk
-        path: campdf-${{ github.run_number }}-debug.apk
+        name: campdf-universal-${{ github.run_number }}-debug.apk
+        path: campdf-universal-${{ github.run_number }}-debug.apk
+    - name: Upload ARM64v8a Debug APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: campdf-arm64-v8a-${{ github.run_number }}-debug.apk
+        path: campdf-arm64-v8a-${{ github.run_number }}-debug.apk

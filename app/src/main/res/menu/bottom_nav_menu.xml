@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- TODO enable when it's developed-->
     <item
         android:id="@+id/Search"
         android:icon="@drawable/ic_baseline_search_24"
+        android:visible="false"
         android:title="Search"/>
 
     <item
@@ -14,6 +16,5 @@
         android:id="@+id/settings"
         android:icon="@drawable/ic_baseline_settings_24"
         android:title="Settings"/>
-
 
 </menu>
