@@ -21,8 +21,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -172,10 +174,23 @@ public class MainActivity extends AppCompatActivity implements ISignals{
             public void onClick(View view) {
                 //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                 EditText v = ((EditText)findViewById(R.id.filterText));
-                ViewGroup.LayoutParams layout = v.getLayoutParams();
-
+                ListView pdfListView = ((ListView) findViewById(R.id.pdfListView));
+                ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams)pdfListView.getLayoutParams();
+                layoutParams.setMargins(0,(int)Utils.convertDpToPixel(56,MainActivity.this),0,0);
+                pdfListView.setLayoutParams(layoutParams);
+                ((FrameLayout) findViewById(R.id.searchFrameLayout)).setVisibility(View.VISIBLE);
                 v.requestFocusFromTouch();
-                //v.requestFocus();
+                v.requestFocus();
+            }
+        });
+        ((ImageView) findViewById(R.id.filterCloseImage)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((FrameLayout) findViewById(R.id.searchFrameLayout)).setVisibility(View.INVISIBLE);
+                ListView pdfListView = ((ListView) findViewById(R.id.pdfListView));
+                ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams)pdfListView.getLayoutParams();
+                layoutParams.setMargins(0,0,0,0);
+                pdfListView.setLayoutParams(layoutParams);
             }
         });
     }
