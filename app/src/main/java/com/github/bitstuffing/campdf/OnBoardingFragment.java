@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 public class OnBoardingFragment extends Fragment {
 
     public static final String COMPLETED_ONBOARDING_PREF_NAME = "completed_onboard_start_up";
+    public static final String COMPLETED_TUTORIAL = "completed_tutorial_start_up";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle s) {

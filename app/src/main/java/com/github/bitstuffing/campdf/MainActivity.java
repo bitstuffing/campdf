@@ -1,5 +1,7 @@
 package com.github.bitstuffing.campdf;
 
+import static android.preference.PreferenceManager.getDefaultSharedPreferences;
+
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.app.AlertDialog;
@@ -8,6 +10,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,6 +20,9 @@ import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,7 +31,11 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.getkeepsafe.taptargetview.TapTarget;
+import com.getkeepsafe.taptargetview.TapTargetView;
 import com.github.bitstuffing.campdf.databinding.ActivityMainBinding;
+import com.google.android.material.bottomnavigation.BottomNavigationItemView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.scanlibrary.ScanActivity;
 import com.scanlibrary.ScanConstants;
 import com.tom_roush.pdfbox.android.PDFBoxResourceLoader;
@@ -142,23 +152,87 @@ public class MainActivity extends AppCompatActivity implements ISignals{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         if (!sharedPreferences.getBoolean(OnBoardingFragment.COMPLETED_ONBOARDING_PREF_NAME, false)) {
             startActivity(new Intent(this, WelcomeActivity.class));
         }
-
-        //Utils.checkPermissions(this);
         init();
-
         //set button event
-        binding.fab.setOnClickListener(new View.OnClickListener() {
+        ((FloatingActionButton)binding.fab).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 callToIntent();
             }
         });
+        if (!sharedPreferences.getBoolean(OnBoardingFragment.COMPLETED_TUTORIAL, false)) {
+            drawGuide();
+        }
+        ((BottomNavigationItemView)findViewById(R.id.searchButton)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                EditText v = ((EditText)findViewById(R.id.filterText));
+                ViewGroup.LayoutParams layout = v.getLayoutParams();
+
+                v.requestFocusFromTouch();
+                //v.requestFocus();
+            }
+        });
     }
+
+    private void drawGuide() {
+        TapTargetView.showFor(this,
+            TapTarget.forView(findViewById(R.id.fab), "Make a photo", "Create your PDF documents starting here")
+                .outerCircleColor(R.color.red)
+                .outerCircleAlpha(0.96f)
+                .targetCircleColor(R.color.white)
+                .titleTextSize(24)
+                .titleTextColor(R.color.white)
+                .descriptionTextSize(16)
+                .descriptionTextColor(R.color.red)
+                .textColor(R.color.blue)
+                .textTypeface(Typeface.SANS_SERIF)
+                .dimColor(R.color.black)
+                .drawShadow(true)
+                .cancelable(false)
+                .tintTarget(true)
+                .transparentTarget(false)
+                .icon( getResources().getDrawable(android.R.drawable.ic_menu_camera))
+                .targetRadius(60),
+            new TapTargetView.Listener() {
+                @Override
+                public void onTargetClick(TapTargetView view) {
+                    super.onTargetClick(view);
+                    TapTargetView.showFor(MainActivity.this,
+                        TapTarget.forView(findViewById(R.id.settingsButton), "Customize", "Choose your quality scanned pages")
+                            .outerCircleColor(R.color.green)
+                            .outerCircleAlpha(0.96f)
+                            .targetCircleColor(R.color.white)
+                            .titleTextSize(24)
+                            .titleTextColor(R.color.white)
+                            .descriptionTextSize(16)
+                            .descriptionTextColor(R.color.black)
+                            .textColor(R.color.blue)
+                            .textTypeface(Typeface.SANS_SERIF)
+                            .dimColor(R.color.black)
+                            .drawShadow(true)
+                            .cancelable(false)
+                            .tintTarget(true)
+                            .transparentTarget(false)
+                            .icon( getResources().getDrawable(R.drawable.ic_baseline_settings_24))
+                            .targetRadius(60),
+                        new TapTargetView.Listener() {
+                            @Override
+                            public void onTargetClick(TapTargetView view) {
+                                super.onTargetClick(view);
+                                SharedPreferences preferences = getDefaultSharedPreferences(MainActivity.this);
+                                preferences.edit().putBoolean(OnBoardingFragment.COMPLETED_TUTORIAL,true).apply();
+                            }
+                        });
+                }
+            });
+    }
+
 
     protected void callToIntent() {
         Intent intent = new Intent(MainActivity.this, ScanActivity.class);
@@ -305,7 +379,7 @@ public class MainActivity extends AppCompatActivity implements ISignals{
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.bottom_nav_menu, menu);
         return true;
     }
 
@@ -317,7 +391,7 @@ public class MainActivity extends AppCompatActivity implements ISignals{
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.settingsButton) {
             return true;
         }
 

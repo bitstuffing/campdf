@@ -82,6 +82,7 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'com.wdullaer:swipeactionadapter:2.0.0'
+    implementation 'com.getkeepsafe.taptargetview:taptargetview:1.13.3'
 
     //scanner library from camera
     api project(':library')

@@ -3,9 +3,8 @@
 
     <!-- TODO enable when it's developed-->
     <item
-        android:id="@+id/Search"
+        android:id="@+id/searchButton"
         android:icon="@drawable/ic_baseline_search_24"
-        android:visible="false"
         android:title="Search"/>
 
     <item
@@ -13,7 +12,7 @@
         android:title=""/>
 
     <item
-        android:id="@+id/settings"
+        android:id="@+id/settingsButton"
         android:icon="@drawable/ic_baseline_settings_24"
         android:title="Settings"/>
 
