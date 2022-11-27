@@ -11,6 +11,7 @@ public class CustomSwipeRefreshLayout extends SwipeRefreshLayout {
 
     private int mTouchSlop;
     private float mPrevX;
+    private float mPrevY;
 
     public CustomSwipeRefreshLayout(Context context, AttributeSet attrs) {
         super(context,attrs);
@@ -23,6 +24,10 @@ public class CustomSwipeRefreshLayout extends SwipeRefreshLayout {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 mPrevX = MotionEvent.obtain(event).getX();
+                mPrevY = MotionEvent.obtain(event).getY();
+                if (mPrevY > Utils.convertDpToPixel(150 ,getContext())) { //TODO put in settings
+                    return false;
+                }
                 break;
 
             case MotionEvent.ACTION_MOVE:
