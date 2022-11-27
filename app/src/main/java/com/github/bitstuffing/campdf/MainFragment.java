@@ -5,12 +5,13 @@ import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -28,8 +29,8 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class MainFragment extends Fragment {
 
@@ -40,6 +41,7 @@ public class MainFragment extends Fragment {
 
     private CustomSwipeRefreshLayout swipeRefreshLayout;
     private LinearLayout emptyLayout;
+    private PDFElementAdapter pdfAdapter;
 
     public static MainFragment newInstance() {
         fragment = new MainFragment();
@@ -84,19 +86,34 @@ public class MainFragment extends Fragment {
                 return false;
             }
         });
+        EditText filterText = ((EditText) view.findViewById(R.id.filterText));
+        filterText.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                String text = filterText.getText().toString().toLowerCase(Locale.getDefault());
+                ((PDFElementAdapter) pdfAdapter).getFilter().filter(text);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
 
         return view;
 
     }
 
     public void fillListView() {
-        List<File> list = new ArrayList<File>();
-        File filePath = getActivity().getFilesDir();
-        for(int i=0;i<filePath.listFiles().length;i++){
-            list.add(filePath.listFiles()[i]);
-        }
-        BaseAdapter tempAdapter = new PDFElementAdapter(list, getActivity());
-        adapter = new SwipeActionAdapter(tempAdapter);
+        List<File> list = Utils.fillFileList(getActivity());
+        pdfAdapter = new PDFElementAdapter(list, getActivity());
+        adapter = new SwipeActionAdapter(pdfAdapter);
         adapter.addBackground(SwipeDirection.DIRECTION_FAR_LEFT,R.layout.row_bg_left_far)
                 .addBackground(SwipeDirection.DIRECTION_NORMAL_LEFT,R.layout.row_bg_left)
                 .addBackground(SwipeDirection.DIRECTION_FAR_RIGHT,R.layout.row_bg_right_far)

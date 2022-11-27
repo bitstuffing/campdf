@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.Security;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Utils {
 
@@ -122,5 +123,14 @@ public class Utils {
      */
     public static float convertPixelsToDp(float px, Context context){
         return px / ((float) context.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT);
+    }
+
+    public static List<File> fillFileList(Activity activity) {
+        List<File> list = new ArrayList<File>();
+        File filePath = activity.getFilesDir();
+        for(int i=0;i<filePath.listFiles().length;i++){
+            list.add(filePath.listFiles()[i]);
+        }
+        return list;
     }
 }

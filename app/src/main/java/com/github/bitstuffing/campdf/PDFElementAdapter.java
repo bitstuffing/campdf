@@ -8,6 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -17,11 +19,12 @@ import com.tom_roush.pdfbox.rendering.PDFRenderer;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PDFElementAdapter extends BaseAdapter {
+public class PDFElementAdapter extends BaseAdapter implements Filterable {
 
     private List<File> list;
     private Activity activity;
@@ -118,6 +121,47 @@ public class PDFElementAdapter extends BaseAdapter {
             return Bitmap.createScaledBitmap(bitmap,WIDTH/3, HEIGHT/3 ,true);
         }
     }
+
+    @Override
+    public Filter getFilter(){
+        return new Filter() {
+
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                List<File> list = Utils.fillFileList(activity);
+
+                constraint = constraint.toString().toLowerCase();
+                FilterResults result = new FilterResults();
+
+                if (constraint != null && constraint.toString().length() > 0) {
+                    List<File> founded = new ArrayList<File>();
+                    for (File item : list) {
+                        if (item.getName().toLowerCase().contains(constraint)) {
+                            founded.add(item);
+                        }
+                    }
+
+                    result.values = founded;
+                    result.count = founded.size();
+                } else {
+                    result.values = list;
+                    result.count = list.size();
+                }
+                return result;
+            }
+
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                list.clear();
+                for (File item : (List<File>) results.values) {
+                    list.add(item);
+                }
+                notifyDataSetChanged();
+            }
+        };
+    }
+
 
     @Override
     public int getViewTypeCount() {
