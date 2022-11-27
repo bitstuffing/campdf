@@ -1,4 +1,4 @@
-package com.github.bitstuffing.campdf;
+package com.github.bitstuffing.campdf.fragment;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -21,6 +21,12 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.github.bitstuffing.campdf.CustomSwipeRefreshLayout;
+import com.github.bitstuffing.campdf.ISignals;
+import com.github.bitstuffing.campdf.R;
+import com.github.bitstuffing.campdf.Utils;
+import com.github.bitstuffing.campdf.MainActivity;
+import com.github.bitstuffing.campdf.adapter.PDFElementAdapter;
 import com.github.bitstuffing.campdf.databinding.FragmentMainBinding;
 import com.wdullaer.swipeactionadapter.SwipeActionAdapter;
 import com.wdullaer.swipeactionadapter.SwipeDirection;

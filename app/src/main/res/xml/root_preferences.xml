@@ -1,0 +1,21 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/document_header">
+
+        <EditTextPreference
+            app:key="prefix"
+            app:title="@string/prefix_title"
+            app:defaultValue="@string/prefix_default"
+            app:useSimpleSummaryProvider="true" />
+
+        <ListPreference
+            app:defaultValue="high_quality"
+            app:entries="@array/quality_entries"
+            app:entryValues="@array/quality_values"
+            app:key="quality"
+            app:title="@string/quality_title"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

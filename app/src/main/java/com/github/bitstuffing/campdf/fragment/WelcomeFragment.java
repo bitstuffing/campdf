@@ -1,4 +1,4 @@
-package com.github.bitstuffing.campdf;
+package com.github.bitstuffing.campdf.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,6 +9,9 @@ import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
+import com.github.bitstuffing.campdf.R;
+import com.github.bitstuffing.campdf.Utils;
+import com.github.bitstuffing.campdf.WelcomeActivity;
 import com.google.android.material.tabs.TabLayout;
 
 /**

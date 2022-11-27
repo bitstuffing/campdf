@@ -15,6 +15,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 
+import com.github.bitstuffing.campdf.fragment.OnBoardingFragment;
+import com.github.bitstuffing.campdf.fragment.WelcomeFragment;
 import com.google.android.material.tabs.TabLayout;
 
 public class WelcomeActivity extends FragmentActivity {

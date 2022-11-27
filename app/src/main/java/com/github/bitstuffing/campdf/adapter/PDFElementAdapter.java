@@ -1,4 +1,4 @@
-package com.github.bitstuffing.campdf;
+package com.github.bitstuffing.campdf.adapter;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -14,6 +14,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.github.bitstuffing.campdf.R;
+import com.github.bitstuffing.campdf.Utils;
 import com.tom_roush.pdfbox.pdmodel.PDDocument;
 import com.tom_roush.pdfbox.rendering.PDFRenderer;
 

@@ -92,6 +92,7 @@ dependencies {
     implementation 'androidx.core:core:1.0.1'
     //FileUtils
     implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
+    implementation 'androidx.preference:preference:1.1.+'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

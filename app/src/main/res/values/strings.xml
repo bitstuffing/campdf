@@ -3,5 +3,14 @@
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
     <string name="hello_fragment_label">CamPDF</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+
+    <!-- Preference Titles -->
+    <string name="document_header">Document preferences</string>
+
+    <!-- Document Preferences -->
+    <string name="prefix_title">Document name prefix</string>
+    <string name="prefix_default">scanned</string>
+    <string name="quality_title">Generation document quality</string>
 
 </resources>

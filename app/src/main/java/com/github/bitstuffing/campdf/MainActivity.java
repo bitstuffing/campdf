@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -36,6 +37,7 @@ import androidx.navigation.ui.NavigationUI;
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetView;
 import com.github.bitstuffing.campdf.databinding.ActivityMainBinding;
+import com.github.bitstuffing.campdf.fragment.OnBoardingFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationItemView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.scanlibrary.ScanActivity;
@@ -52,7 +54,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class MainActivity extends AppCompatActivity implements ISignals{
+public class MainActivity extends AppCompatActivity implements ISignals {
 
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
@@ -176,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements ISignals{
                 EditText v = ((EditText)findViewById(R.id.filterText));
                 ListView pdfListView = ((ListView) findViewById(R.id.pdfListView));
                 ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams)pdfListView.getLayoutParams();
-                layoutParams.setMargins(0,(int)Utils.convertDpToPixel(56,MainActivity.this),0,0);
+                layoutParams.setMargins(0,(int) Utils.convertDpToPixel(56,MainActivity.this),0,0);
                 pdfListView.setLayoutParams(layoutParams);
                 ((FrameLayout) findViewById(R.id.searchFrameLayout)).setVisibility(View.VISIBLE);
                 v.requestFocusFromTouch();
@@ -191,6 +193,14 @@ public class MainActivity extends AppCompatActivity implements ISignals{
                 ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams)pdfListView.getLayoutParams();
                 layoutParams.setMargins(0,0,0,0);
                 pdfListView.setLayoutParams(layoutParams);
+            }
+        });
+
+        ((BottomNavigationItemView) findViewById(R.id.settingsButton)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(i);
             }
         });
     }
@@ -278,7 +288,9 @@ public class MainActivity extends AppCompatActivity implements ISignals{
                     });
                     alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
-                            drawPdf(data,"scanned-"+System.currentTimeMillis()+".pdf");
+                            SharedPreferences sharedPreferences = MainActivity.this.getSharedPreferences(getApplicationContext().getPackageName()+ "_preferences", Context.MODE_PRIVATE);
+                            String filePrefix = sharedPreferences.getString(SettingsActivity.FILE_PREF_NAME,getString(R.string.prefix_default));
+                            drawPdf(data,filePrefix+"-"+System.currentTimeMillis()+".pdf");
                             sendMessage(REFRESH_LISTVIEW); //TODO check
                         }
                     });
@@ -301,7 +313,9 @@ public class MainActivity extends AppCompatActivity implements ISignals{
                         public void onClick(DialogInterface dialog, int whichButton) {
                             try {
                                 addPageToDocument(data);
-                                askToSaveDocument("scanned-"+System.currentTimeMillis()+".pdf");
+                                SharedPreferences sharedPreferences = MainActivity.this.getSharedPreferences(getApplicationContext().getPackageName()+ "_preferences", Context.MODE_PRIVATE);
+                                String filePrefix = sharedPreferences.getString(SettingsActivity.FILE_PREF_NAME,getString(R.string.prefix_default));
+                                askToSaveDocument(filePrefix+"-"+System.currentTimeMillis()+".pdf");
                             } catch (IOException e) {
                                 e.printStackTrace();
                             } finally{
@@ -339,7 +353,13 @@ public class MainActivity extends AppCompatActivity implements ISignals{
 
         bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
         contentStream = new PDPageContentStream(document, page);
-        bitmap = Bitmap.createScaledBitmap(bitmap, A4_WIDTH,A4_HEIGHT, true);
+
+        SharedPreferences sharedPreferences = MainActivity.this.getSharedPreferences(getApplicationContext().getPackageName()+ "_preferences", Context.MODE_PRIVATE);
+        String qualityPreference = sharedPreferences.getString(SettingsActivity.QUALITY,getString(R.string.prefix_default));
+        int width = qualityPreference.equals("high_quality")? A4_WIDTH: A4_WIDTH / 3;
+        int height = qualityPreference.equals("high_quality")? A4_HEIGHT: A4_HEIGHT / 3;
+
+        bitmap = Bitmap.createScaledBitmap(bitmap, width,height, true);
         PDImageXObject alphaXimage = /*LosslessFactory*/JPEGFactory.createFromImage(document,bitmap);
         contentStream.drawImage(alphaXimage, 0, 0 , page.getBBox().getWidth(), page.getBBox().getHeight());
 
