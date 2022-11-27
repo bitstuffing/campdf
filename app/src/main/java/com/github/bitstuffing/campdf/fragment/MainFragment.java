@@ -23,9 +23,9 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.github.bitstuffing.campdf.CustomSwipeRefreshLayout;
 import com.github.bitstuffing.campdf.ISignals;
+import com.github.bitstuffing.campdf.MainActivity;
 import com.github.bitstuffing.campdf.R;
 import com.github.bitstuffing.campdf.Utils;
-import com.github.bitstuffing.campdf.MainActivity;
 import com.github.bitstuffing.campdf.adapter.PDFElementAdapter;
 import com.github.bitstuffing.campdf.databinding.FragmentMainBinding;
 import com.wdullaer.swipeactionadapter.SwipeActionAdapter;
@@ -97,7 +97,8 @@ public class MainFragment extends Fragment {
 
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
+                String text = filterText.getText().toString().toLowerCase(Locale.getDefault());
+                ((PDFElementAdapter) pdfAdapter).getFilter().filter(text);
             }
 
             @Override
@@ -108,7 +109,8 @@ public class MainFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-
+                String text = filterText.getText().toString().toLowerCase(Locale.getDefault());
+                ((PDFElementAdapter) pdfAdapter).getFilter().filter(text);
             }
         });
 

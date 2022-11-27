@@ -2,12 +2,11 @@ package com.github.bitstuffing.campdf.adapter;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
-import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
@@ -26,20 +25,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PDFElementAdapter extends BaseAdapter implements Filterable {
+public class PDFElementAdapter extends ArrayAdapter<File> implements Filterable {
 
     private List<File> list;
     private Activity activity;
-    private Map<String,View> thumbnails;
+    private Map<String,Bitmap> cachedHashMap;
 
     int WIDTH = 150;
     int HEIGHT = 150;
 
     public PDFElementAdapter(List<File> list, Activity activity){
-        super();
+        super(activity,R.layout.custom,list);
         this.list = list;
         this.activity = activity;
-        this.thumbnails = new HashMap<String,View>();
+        this.cachedHashMap = new HashMap<String,Bitmap>();
     }
 
     @Override
@@ -48,7 +47,7 @@ public class PDFElementAdapter extends BaseAdapter implements Filterable {
     }
 
     @Override
-    public Object getItem(int i) {
+    public File getItem(int i) {
         return list != null ? list.get(i) : null;
     }
 
@@ -58,14 +57,14 @@ public class PDFElementAdapter extends BaseAdapter implements Filterable {
     }
 
     @Override
-    public View getView(int i, View view, ViewGroup viewGroup) {
-        if(view !=null && thumbnails.containsKey(list.get(i).getName())){ //search in cached
+    public View getView(int i, View view, ViewGroup parent) {
+        if(view !=null && cachedHashMap.containsKey(list.get(i).getName())){ //search in cached
             ((ViewGroup)view.getParent()).removeView(view); //needs this tip to avoid invalid view identifier
-            View row = thumbnails.get(list.get(i).getName());
-            return row;
+            //View row = cachedHashMap.get(list.get(i).getName());
+            //return row;
         }
         LayoutInflater inflater = LayoutInflater.from(activity);
-        LinearLayout row = (LinearLayout) inflater.inflate(R.layout.custom,null);
+        LinearLayout row = (LinearLayout) inflater.inflate(R.layout.custom, parent,false);
         TextView title, detail;
         ImageView i1;
         title = (TextView) row.findViewById(R.id.title);
@@ -73,10 +72,18 @@ public class PDFElementAdapter extends BaseAdapter implements Filterable {
         title.setText(list.get(i).getName());
         detail.setText(list.get(i).getName());
         i1=(ImageView)row.findViewById(R.id.img);
-        try{
-            i1.setImageBitmap(getThumbnailFromPDF(list.get(i).getName())); //get thumbnail
-        }catch(IOException e){
-            e.printStackTrace(); //TODO log
+        Bitmap thumbnail = null;
+        if(cachedHashMap.containsKey(list.get(i).getName())){
+            thumbnail = cachedHashMap.get(list.get(i).getName());
+        }else{
+            try{
+                thumbnail = getThumbnailFromPDF(list.get(i).getName()); //get thumbnail
+            }catch(IOException e){
+                e.printStackTrace(); //TODO log
+            }
+        }
+        if(thumbnail!=null){
+            i1.setImageBitmap(thumbnail);
         }
         row.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,7 +101,7 @@ public class PDFElementAdapter extends BaseAdapter implements Filterable {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view,int position, long id) {
                 registerForContextMenu(view);
-                //TODO OpenContextMenu
+                //OpenContextMenu
                 return false;
             }
         });*/
@@ -105,23 +112,25 @@ public class PDFElementAdapter extends BaseAdapter implements Filterable {
                 return false;
             }
         });
-        //TODO cached but is not a valid solution, needs more control (like renamed or deleted)
-        thumbnails.put(list.get(i).getName(),row);
+        //cached but is not a valid solution, needs more control (like renamed or deleted)
+        cachedHashMap.put(list.get(i).getName(),thumbnail);
         return row;
     }
 
     private Bitmap getThumbnailFromPDF(String s) throws IOException {
+        Bitmap bitmap = null;
         try{
             PDDocument pdf = PDDocument.load(new File(activity.getFilesDir().getAbsolutePath()+File.separatorChar+s));
-            //PDPage pdpage = (PDPage) pdf.getDocumentCatalog().getPages().get(0);
             PDFRenderer renderer = new PDFRenderer(pdf);
-            return  Bitmap.createScaledBitmap(renderer.renderImage(0), WIDTH, HEIGHT, true);
+            bitmap = Bitmap.createScaledBitmap(renderer.renderImage(0), WIDTH, HEIGHT, true);
         }catch(Exception e){
-            Bitmap bitmap = ((BitmapDrawable) activity.getResources().getDrawable(R.drawable.pdf)).getBitmap();
-            Matrix matrix = new Matrix();
-            //matrix.postScale(50,50);
-            return Bitmap.createScaledBitmap(bitmap,WIDTH/3, HEIGHT/3 ,true);
+            bitmap = ((BitmapDrawable) activity.getResources().getDrawable(R.drawable.pdf)).getBitmap();
+            bitmap = Bitmap.createScaledBitmap(bitmap,WIDTH/3, HEIGHT/3 ,true);
         }
+        if(bitmap!=null){
+            cachedHashMap.put(s,bitmap);
+        }
+        return bitmap;
     }
 
     @Override
@@ -155,11 +164,12 @@ public class PDFElementAdapter extends BaseAdapter implements Filterable {
 
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
+                notifyDataSetChanged();
                 list.clear();
                 for (File item : (List<File>) results.values) {
                     list.add(item);
                 }
-                notifyDataSetChanged();
+                notifyDataSetInvalidated();
             }
         };
     }

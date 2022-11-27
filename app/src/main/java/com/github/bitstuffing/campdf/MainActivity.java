@@ -127,7 +127,6 @@ public class MainActivity extends AppCompatActivity implements ISignals {
             }
         };
 
-
         //init pdf
         PDFBoxResourceLoader.init(getApplicationContext());
 
