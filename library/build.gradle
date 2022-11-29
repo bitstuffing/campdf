@@ -24,7 +24,26 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    packagingOptions {
+        exclude 'src/main/libs/**/*.so'
+        exclude 'src/main/libs/**/*.a'
+        exclude 'src/main/obj/local/**/*.so'
+        exclude 'src/main/jni/sdk/native/libs/**/*.a'
+        //exclude '**/libScanner.so'
+        //exclude '**/libopencv_java3.so'
+    }
+
+    buildTypes {
+        debug {
+            packagingOptions {
+                doNotStrip '*.so'  // controlled by OpenCV CMake scripts
+            }
+        }
+    }
 }
+
+
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
