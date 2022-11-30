@@ -92,8 +92,6 @@ LOCAL_CFLAGS     += $(OPENCV_LOCAL_CFLAGS)
 
 ifeq ($(OPENCV_INSTALL_MODULES),on)
     LOCAL_$(OPENCV_LIB_TYPE)_LIBRARIES += $(foreach mod, $(OPENCV_LIBS), opencv_$(mod))
-else
-    LOCAL_LDLIBS += -L$(call host-path,$(LOCAL_PATH)/$(OPENCV_LIBS_DIR)) $(foreach lib, $(OPENCV_LIBS), -lopencv_$(lib))
 endif
 
 ifeq ($(OPENCV_LIB_TYPE),STATIC)
