@@ -48,13 +48,10 @@
                     android:id="@+id/filterText"
                     android:layout_width="wrap_content"
                     android:layout_height="?attr/actionBarSize"
-                    android:background="@android:color/white"
                     android:hint="Filter by..."
                     android:inputType="text"
                     android:paddingLeft="20dp"
                     android:singleLine="true"
-                    android:textColor="@color/black"
-                    android:textColorHint="@android:color/darker_gray"
                     android:textStyle="bold" />
 
                 <ImageView
@@ -70,8 +67,7 @@
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/white" />
+                android:layout_height="1dp" />
 
             <ListView
                 android:id="@+id/pdfListView"
