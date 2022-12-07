@@ -21,6 +21,7 @@
     <PreferenceCategory app:title="@string/theme">
 
         <ListPreference
+            id="@+id/themeListPreference"
             app:defaultValue="high_quality"
             app:entries="@array/theme_entries"
             app:entryValues="@array/theme_values"
