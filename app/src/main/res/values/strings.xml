@@ -12,5 +12,7 @@
     <string name="prefix_title">Document name prefix</string>
     <string name="prefix_default">scanned</string>
     <string name="quality_title">Generation document quality</string>
+    <string name="theme">Theme</string>
+    <string name="theme_title">Choose a theme</string>
 
 </resources>

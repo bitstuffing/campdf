@@ -29,6 +29,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -162,7 +163,10 @@ public class MainActivity extends AppCompatActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        Utils.setTheme(sharedPreferences);
+
         if (!sharedPreferences.getBoolean(OnBoardingFragment.COMPLETED_ONBOARDING_PREF_NAME, false)) {
             startActivity(new Intent(this, WelcomeActivity.class));
         }

@@ -6,12 +6,14 @@ import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
@@ -132,5 +134,21 @@ public class Utils {
             list.add(filePath.listFiles()[i]);
         }
         return list;
+    }
+
+    public static void setTheme(SharedPreferences sharedPreferences) {
+        //force theme from settings
+        String theme = sharedPreferences.getString(SettingsActivity.THEME,SettingsActivity.THEME_DAY);
+        switch(theme){
+            case SettingsActivity.THEME_DAY:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                break;
+            case SettingsActivity.THEME_NIGHT:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                break;
+            default: //SettingsActivity.THEME_SYSTEM
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+
+        }
     }
 }
