@@ -1,15 +1,11 @@
 package com.github.bitstuffing.campdf;
 
-import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.preference.Preference;
-import androidx.preference.PreferenceFragmentCompat;
+
+import com.github.bitstuffing.campdf.fragment.SettingsFragment;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -38,32 +34,11 @@ public class SettingsActivity extends AppCompatActivity {
 
     }
 
-    public static class SettingsFragment extends PreferenceFragmentCompat  implements SharedPreferences.OnSharedPreferenceChangeListener{
-
-        @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-            Utils.setTheme(sharedPreferences);
-        }
-
-        @Override
-        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-            setPreferencesFromResource(R.xml.root_preferences, rootKey);
-            /*Preference preference = (Preference)findPreference("themeListPreference");
-            preference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener(){
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    //TODO adapt/migrate Utils.setTheme(sharedPreferences); to simple preference
-                    return true;
-                }
-            });*/
-
-        }
-
-        @Override
-        public void onConfigurationChanged(@NonNull Configuration newConfig) {
-            super.onConfigurationChanged(newConfig);
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            Utils.setTheme(sharedPreferences);
-        }
+    @Override
+    protected void onRestart() {
+        this.recreate();
+        super.onRestart();
     }
+
+
 }

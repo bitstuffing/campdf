@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.preference.ListPreference;
 
 import org.apache.commons.io.FileUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -136,9 +137,19 @@ public class Utils {
         return list;
     }
 
+    public static void setTheme(ListPreference preference){
+        if(preference.getKey() == SettingsActivity.THEME){
+            switchTheme(preference.getValue());
+        }
+    }
+
     public static void setTheme(SharedPreferences sharedPreferences) {
         //force theme from settings
         String theme = sharedPreferences.getString(SettingsActivity.THEME,SettingsActivity.THEME_DAY);
+        switchTheme(theme);
+    }
+
+    private static void switchTheme(String theme) {
         switch(theme){
             case SettingsActivity.THEME_DAY:
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
