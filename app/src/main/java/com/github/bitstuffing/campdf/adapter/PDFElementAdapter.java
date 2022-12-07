@@ -3,6 +3,9 @@ package com.github.bitstuffing.campdf.adapter;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.github.bitstuffing.campdf.ISignals;
 import com.github.bitstuffing.campdf.R;
 import com.github.bitstuffing.campdf.Utils;
 import com.tom_roush.pdfbox.pdmodel.PDDocument;
@@ -31,14 +35,61 @@ public class PDFElementAdapter extends ArrayAdapter<File> implements Filterable 
     private Activity activity;
     private Map<String,Bitmap> cachedHashMap;
 
+    protected static Handler messageHandler;
+
     int WIDTH = 150;
     int HEIGHT = 150;
 
-    public PDFElementAdapter(List<File> list, Activity activity){
-        super(activity,R.layout.custom,list);
-        this.list = list;
+    public PDFElementAdapter(List<File> listFiles, Activity activity){
+        super(activity,R.layout.custom,listFiles);
+        this.list = listFiles;
         this.activity = activity;
         this.cachedHashMap = new HashMap<String,Bitmap>();
+
+        messageHandler = new Handler() {
+            @Override
+            public void handleMessage (Message msg){
+                Bundle bundle = msg.getData();
+                int code = bundle.getInt("code",0);
+                String message = bundle.getString("message","");
+                switch(code) {
+                    case ISignals.REFRESH:
+//                        new Runnable(){
+//                            @Override
+//                            public void run() {
+                                int size = list.size();
+                                List<File> tempList = Utils.fillFileList(activity);
+                                if (size!=tempList.size()){
+                                    list = tempList;
+                                    activity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            notifyDataSetChanged();
+                                        }
+                                    });
+                                }else{
+                                    try {
+                                        Thread.sleep(5000);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                    PDFElementAdapter.sendMessage(ISignals.REFRESH,"");
+                                }
+//                            }
+//                        };
+                        break;
+                }
+            }
+        };
+    }
+
+    public static void sendMessage(int code,String message) {
+        Message messageToBeSent = new Message();
+        Bundle bundle = new Bundle();
+        bundle.putInt("code",code);
+        bundle.putString("message",message);
+        messageToBeSent.setData(bundle);
+        messageHandler.sendMessage(messageToBeSent);
     }
 
     @Override

@@ -36,6 +36,7 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetView;
+import com.github.bitstuffing.campdf.adapter.PDFElementAdapter;
 import com.github.bitstuffing.campdf.databinding.ActivityMainBinding;
 import com.github.bitstuffing.campdf.fragment.OnBoardingFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationItemView;
@@ -54,7 +55,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class MainActivity extends AppCompatActivity implements ISignals {
+public class MainActivity extends AppCompatActivity{
 
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
@@ -89,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements ISignals {
                 int code = bundle.getInt("code",0);
                 String message = bundle.getString("message","");
                 switch(code){
-                    case LOADING:
+                    case ISignals.LOADING:
                         if(loadingDialog == null){
                             loadingDialog = new ProgressDialog(MainActivity.this);
                             loadingDialog.setMessage("Loading..");
@@ -99,26 +100,32 @@ public class MainActivity extends AppCompatActivity implements ISignals {
                         loadingDialog.setCancelable(false);
                         loadingDialog.show();
                         break;
-                    case LOADED:
+                    case ISignals.LOADED:
                         loadingDialog.dismiss();
                         loadingDialog = null;
                         break;
-                    case SHOW_ALERT:
+                    case ISignals.SHOW_ALERT:
                         if(alertDialog != null){
                             alertDialog.show();
                         }
                         break;
-                    case ERROR_MESSAGE:
+                    case ISignals.ERROR_MESSAGE:
                         logger.log(Level.WARNING, message);
                         if(loadingDialog !=null){
                             loadingDialog.dismiss();
                         }
                         Toast.makeText(getApplicationContext(), "ERROR: "+code+" | "+message, Toast.LENGTH_SHORT).show();
                         break;
-                    case REFRESH_LISTVIEW:
-                        //TODO
+                    case ISignals.REFRESH_LISTVIEW:
+//TODO, check if it's necessary (this signal), if yes provide listview in getListView()
+//                        runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                getListView().getAdapter().notifyDataSetChanged();
+//                            }
+//                        });
                         break;
-                    case INFO_MESSAGE:
+                    case ISignals.INFO_MESSAGE:
                         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
                         break;
                     default:
@@ -268,7 +275,7 @@ public class MainActivity extends AppCompatActivity implements ISignals {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE) {
+        if (requestCode == ISignals.REQUEST_CODE) {
             if(resultCode == Activity.RESULT_OK){
                 if(document == null){
                     //define first and unique dialog workflow
@@ -290,10 +297,11 @@ public class MainActivity extends AppCompatActivity implements ISignals {
                             SharedPreferences sharedPreferences = MainActivity.this.getSharedPreferences(getApplicationContext().getPackageName()+ "_preferences", Context.MODE_PRIVATE);
                             String filePrefix = sharedPreferences.getString(SettingsActivity.FILE_PREF_NAME,getString(R.string.prefix_default));
                             drawPdf(data,filePrefix+"-"+System.currentTimeMillis()+".pdf");
-                            sendMessage(REFRESH_LISTVIEW); //TODO check
+//                            sendMessage(ISignals.REFRESH_LISTVIEW); //TODO check
+                            PDFElementAdapter.sendMessage(ISignals.REFRESH,"");
                         }
                     });
-                    sendMessage(SHOW_ALERT);
+                    sendMessage(ISignals.SHOW_ALERT);
                 }else{
                     //define recursive dialog workflow
                     alertDialog = new AlertDialog.Builder(this);
@@ -319,11 +327,12 @@ public class MainActivity extends AppCompatActivity implements ISignals {
                                 e.printStackTrace();
                             } finally{
                                 document = null;
-                                sendMessage(REFRESH_LISTVIEW);
+//                                sendMessage(ISignals.REFRESH_LISTVIEW);
+//                                PDFElementAdapter.sendMessage(ISignals.REFRESH,""); //TODO check if this line is mandatory or not, I think with the new thread not but needs some checks for unknown ways in the workflow
                             }
                         }
                     });
-                    sendMessage(SHOW_ALERT);
+                    sendMessage(ISignals.SHOW_ALERT);
                 }
             }
         }
@@ -332,7 +341,7 @@ public class MainActivity extends AppCompatActivity implements ISignals {
     private void drawPdf(Intent intent,String fileName) {
         try {
             //init
-            sendMessage(LOADING,"creating document...");
+            sendMessage(ISignals.LOADING,"creating document...");
             document = new PDDocument();
             addPageToDocument(intent);
             //storage part
@@ -381,7 +390,7 @@ public class MainActivity extends AppCompatActivity implements ISignals {
                         saveDocument();
                     } catch (IOException e) {
                         e.printStackTrace();
-                        sendMessage(ERROR_MESSAGE,"Exception at: "+file.getAbsolutePath());
+                        sendMessage(ISignals.ERROR_MESSAGE,"Exception at: "+file.getAbsolutePath());
                     }
                 }
             });
@@ -392,7 +401,7 @@ public class MainActivity extends AppCompatActivity implements ISignals {
                         }
                     }
             );
-            sendMessage(SHOW_ALERT);
+            sendMessage(ISignals.SHOW_ALERT);
         }else{
             saveDocument();
         }
@@ -400,13 +409,13 @@ public class MainActivity extends AppCompatActivity implements ISignals {
 
     private void saveDocument() throws IOException{
         if(file.createNewFile()) {
-            sendMessage(LOADING,"saving...");
+            sendMessage(ISignals.LOADING,"saving...");
             document.save(file.getAbsoluteFile());
             document.close();
-            sendMessage(LOADED);
-            sendMessage(INFO_MESSAGE,"saved at: "+file.getAbsolutePath());
+            sendMessage(ISignals.LOADED);
+            sendMessage(ISignals.INFO_MESSAGE,"saved at: "+file.getAbsolutePath());
         }else{
-            sendMessage(ERROR_MESSAGE,"fail at: "+file.getAbsolutePath());
+            sendMessage(ISignals.ERROR_MESSAGE,"fail at: "+file.getAbsolutePath());
         }
     }
 
