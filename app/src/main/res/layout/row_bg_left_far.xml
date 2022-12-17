@@ -12,6 +12,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginLeft="20dp"
-        android:text="Remove" />
+        android:layout_marginLeft="40dp"
+        android:fontFamily="@font/font_awesome"
+        android:textSize="40dp"
+        android:text="\uf2ed" />
 </LinearLayout>

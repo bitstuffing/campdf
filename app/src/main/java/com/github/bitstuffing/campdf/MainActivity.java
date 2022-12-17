@@ -417,9 +417,9 @@ public class MainActivity extends AppCompatActivity{
             document.save(file.getAbsoluteFile());
             document.close();
             sendMessage(ISignals.LOADED);
-            sendMessage(ISignals.INFO_MESSAGE,"saved at: "+file.getAbsolutePath());
+            sendMessage(ISignals.INFO_MESSAGE,"Generated: "+file.getName());
         }else{
-            sendMessage(ISignals.ERROR_MESSAGE,"fail at: "+file.getAbsolutePath());
+            sendMessage(ISignals.ERROR_MESSAGE,"Failed at: "+file.getAbsolutePath());
         }
     }
 
